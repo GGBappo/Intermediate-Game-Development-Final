@@ -12,7 +12,7 @@ public class Package_SO : ScriptableObject
 
     public GameObject packagePrefab;    
     public string packageName;
-    public float packageHealth;
+    public float packageHealth = 100f;
     public float crashModifier = 0.5f;
-    public int floatModifier = 1;
+    public float floatModifier = 0.5f;
 }

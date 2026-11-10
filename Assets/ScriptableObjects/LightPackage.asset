@@ -14,6 +14,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Package_SO
   packagePrefab: {fileID: 447926832458561358, guid: 832140eef807d0742ba6884e626d4ab4, type: 3}
   packageName: 'Glass Vase '
-  packageHealth: 0
+  packageHealth: 100
   crashModifier: 0.5
   floatModifier: 1
