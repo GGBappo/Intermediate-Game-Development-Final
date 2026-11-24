@@ -1,7 +1,9 @@
+using System;
 using UnityEngine;
 
 public class Package : MonoBehaviour
 {
+    [Range(0f, 10f)]
     public float packageThreshold = 3f; // Threshold for high-speed collision
 
     public float damageCoolDown = 1f; // Cooldown time between damage applications
@@ -9,11 +11,28 @@ public class Package : MonoBehaviour
 
     [SerializeField] private Package_SO packageData;
     [SerializeField] private Rigidbody packageRigidbody;
+    [SerializeField] private CheckPoint checkPoint;
 
+    [Header("SO matching")]
     string packageName;
-    float packageHealth;
-    float crashModifier;
+    public float packageHealth;
+    public float crashModifier;
     float floatModifier;
+    bool isDestroyed = false;
+    private int damageTaken;
+
+    [Tooltip("Events triggered when the package takes damage.")]
+
+    public event Action<float> onPackageDamaged;
+    //public properties to expose packageHealth and packageData safely
+    public float PackageHealth => packageHealth;
+    //public property to expose packageData safely
+    public Package_SO PackageData => packageData;
+    //public property to expose checkPoint safely
+    public CheckPoint CheckPoint => checkPoint;
+    //public property to expose isDestroyed safely
+    public int DamageTaken => damageTaken;
+    public event Action<Package> onPackageDestroyed;
 
     private void Awake()
     {
@@ -49,34 +68,45 @@ public class Package : MonoBehaviour
         }
     }
 
+
     private void TakeDamage(float damage)
     {
-        if (packageHealth <= 0)
-        {
-            Debug.Log($"Package {packageName} is already destroyed. No further damage can be applied.");
-        }
-        else
-        {
-            if (damage >= packageHealth)
-            {
-                damage = packageHealth; // Cap the damage to the remaining health
-                packageHealth = 0; // Set health to zero if damage exceeds current health
-                Destroy(gameObject); // Destroy the package GameObject
-                Debug.Log($"Package {packageName} is destroyed!");
-            }
-            else
-            {
-                packageHealth -= damage; // Reduce the health by the damage amount
-                packageHealth = Mathf.Round(packageHealth); // Round the health to avoid floating-point precision issues
-                Debug.Log($"Package {packageName} took {damage} damage. Remaining health: {packageHealth}");
+        if (isDestroyed || packageHealth <= 0f)
+            return;
 
-                if(packageHealth <= 0)
-                {
-                    packageHealth = 0; // Ensure health doesn't go below zero
-                    Destroy(gameObject); // Destroy the package GameObject
-                    Debug.Log($"Package {packageName} is destroyed!");
-                }
-            }
+        float appliedDamage = Mathf.Min(damage, packageHealth);
+
+        packageHealth -= appliedDamage;
+        packageHealth = Mathf.Max(0f, Mathf.Round(packageHealth));
+
+        damageTaken += Mathf.RoundToInt(appliedDamage);
+        onPackageDamaged?.Invoke(appliedDamage);
+
+        Debug.Log($"Package {packageName} took {appliedDamage} damage. Remaining health: {packageHealth}");
+
+        if (packageHealth <= 0f)
+        {
+            DestroyPackage();
         }
+    }
+
+    private void DestroyPackage()
+    {
+        if (isDestroyed)
+            return;
+
+        isDestroyed = true;
+        packageHealth = 0f;
+
+        onPackageDestroyed?.Invoke(this);
+
+        Debug.Log($"Package {packageName} is destroyed!");
+
+        Destroy(gameObject);
+    }
+
+    public void SetDestination(CheckPoint destination)
+    {
+        checkPoint = destination;
     }
 }
