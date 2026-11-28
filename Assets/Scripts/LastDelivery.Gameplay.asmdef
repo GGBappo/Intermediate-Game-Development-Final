@@ -1,5 +1,8 @@
 {
   "name": "LastDelivery.Gameplay",
-  "references": ["Unity.TextMeshPro"],
+  "references": [
+    "Unity.TextMeshPro",
+    "UnityEngine.UI"
+  ],
   "autoReferenced": true
 }
