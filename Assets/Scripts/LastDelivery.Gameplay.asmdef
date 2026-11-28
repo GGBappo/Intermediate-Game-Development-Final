@@ -1,0 +1,5 @@
+{
+  "name": "LastDelivery.Gameplay",
+  "references": ["Unity.TextMeshPro"],
+  "autoReferenced": true
+}
